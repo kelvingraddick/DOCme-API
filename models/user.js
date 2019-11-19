@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-var Database = require('./database');
+var Database = require('../helpers/database');
 
 const User = Database.define('user',
   {

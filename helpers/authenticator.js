@@ -1,4 +1,4 @@
-var User = require('./models');
+var User = require('../models/user');
 
 var Authenticator = async function(req, res) {
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
