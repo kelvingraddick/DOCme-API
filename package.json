@@ -12,8 +12,8 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "morgan": "~1.9.1",
-    "mysql2": "^2.0.0",
-    "sequelize": "^5.21.2"
+    "mysql2": "^2.0.2",
+    "sequelize": "^5.21.3"
   },
   "devDependencies": {
     "tedious": "^6.6.2"
