@@ -10,7 +10,7 @@ var Authenticator = async function(req, res) {
         password: password
       },
       limit: 1
-    });
+    }).catch((error) => { });
     if (user) {
       // Access granted...
       return { isSuccess: true, user: user };
