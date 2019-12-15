@@ -11,9 +11,9 @@ var Authenticator = async function(req, res) {
       },
       limit: 1
     }).catch((error) => { });
-    if (user) {
+    if (user && user[0]) {
       // Access granted...
-      return { isSuccess: true, user: user };
+      return { isSuccess: true, user: user[0] };
     }
   
     res.set('WWW-Authenticate', 'Basic realm="401"');
