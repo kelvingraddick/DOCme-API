@@ -12,6 +12,7 @@ For development, you will only need Node.js and optionally nodemon (for hot-relo
 
 Just go on [official Node.js website](https://nodejs.org/) and download the installer.
 If the installation was successful, you should be able to run the following command and get back a version.
+    
     $ node --version
 
 - #### nodemon installation
