@@ -4,16 +4,16 @@ var Authenticator = async function(req, res) {
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const [email_address, password] = Buffer.from(b64auth, 'base64').toString().split(':');
 
-    var user = await User.findAll({
+    var users = await User.findAll({
       where: {
         email_address: email_address,
         password: password
       },
       limit: 1
     }).catch((error) => { });
-    if (user && user[0]) {
+    if (users && users[0]) {
       // Access granted...
-      return { isSuccess: true, user: user[0] };
+      return { isSuccess: true, user: users[0] };
     }
   
     res.set('WWW-Authenticate', 'Basic realm="401"');
