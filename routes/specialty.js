@@ -8,7 +8,7 @@ router.get('/search/:query', async function(req, res, next) {
   var authentication = await Authenticator(req, res);
   if (!authentication.isSuccess) return;
 
-  var response = { isSuccess: true, test: 'changed' }
+  var response = { isSuccess: true }
 
   var query = req.params.query;
   response.specialties = await Specialty.findAll({
