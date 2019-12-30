@@ -18,9 +18,9 @@ jobs:
     - name: FTP files to server
       uses: SamKirkland/FTP-Deploy-Action@2.0.0
       with:
-        ftp_server: ${{ secrets.FTP_SERVER }}
-        ftp_username: ${{ secrets.FTP_USERNAME }}
-        ftp_password: ${{ secrets.FTP_PASSWORD }}
+        ftp_server: ${{ secrets.INPUT_FTP_SERVER }}
+        ftp_username: ${{ secrets.INPUT_FTP_USERNAME }}
+        ftp_password: ${{ secrets.INPUT_FTP_PASSWORD }}
         remote_dir: "DOCmeAPI"
   smoke-test:
     runs-on: ubuntu-latest
