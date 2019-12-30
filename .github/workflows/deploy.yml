@@ -1,0 +1,34 @@
+name: Deploy
+on: 
+  push:
+    branches: [master]
+  release:
+    types: [published]
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Node.js
+      uses: actions/setup-node@v1.1.0
+    - name: Install project
+      run: 
+        npm install
+    - name: FTP files to server
+      uses: SamKirkland/FTP-Deploy-Action@2.0.0
+      with:
+        ftp_server: ${{ secrets.FTP_SERVER }}
+        ftp_username: ${{ secrets.FTP_USERNAME }}
+        ftp_password: ${{ secrets.FTP_PASSWORD }}
+        remote_dir: "DOCmeAPI"
+  smoke-test:
+    runs-on: ubuntu-latest
+    name: Smoke Test
+    needs: deploy
+    steps:
+    - name: Check Sign-In endpoint
+      uses: srt32/uptime@master
+      with:
+        url-to-hit: "http://www.docmeapp.com/user/signin"
+        expected-statuses: "405"
