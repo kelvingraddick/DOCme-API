@@ -24,10 +24,12 @@ Go to [official nodemon website](https://nodemon.io) for more information if nee
 ## Install
     $ npm install
 
-## Configure app
+## Configure environment variables
 
-Open `/helpers/database.js` then edit it with your settings. You will need:
+Copy the file `.env.example` to a new file named `.env` and then edit it with the environment specific settings. This new file will be ignored by Git (don't need to ever commit).
+The variables you will need are:
 
+- Environment ('development' or 'production')
 - Database host
 - Database username
 - Database password
