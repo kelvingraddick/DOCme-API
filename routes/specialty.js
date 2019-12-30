@@ -5,9 +5,6 @@ var Authenticator = require('../helpers/authenticator');
 var Specialty = require('../models/specialty');
 
 router.get('/search/:query', async function(req, res, next) {
-  var authentication = await Authenticator(req, res);
-  if (!authentication.isSuccess) return;
-
   var response = { isSuccess: true }
 
   var query = req.params.query;
