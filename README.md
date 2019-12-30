@@ -17,6 +17,7 @@ If the installation was successful, you should be able to run the following comm
 - #### nodemon installation
 
     $ npm install -g nodemon
+
 Go to [official nodemon website](https://nodemon.io) for more information if needed.
 
 ## Install
