@@ -1,8 +1,47 @@
 var express = require('express');
 var router = express.Router();
 var https = require('https');
+var Sequelize = require('sequelize');
 var InsuranceCarrier = require('../models/insurance-carrier');
 var InsurancePlan = require('../models/insurance-plan');
+
+router.get('/carriers/search/:query', async function(req, res, next) {
+  var response = { isSuccess: true }
+
+  var query = req.params.query;
+  response.insuranceCarriers = await InsuranceCarrier.findAll({
+    attributes: [ 'id', ['external_id', 'externalId'], 'name' ],
+    where: {
+      name: {
+        [Sequelize.Op.startsWith]: query
+      }
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
+
+router.get('/plans/search/:query', async function(req, res, next) {
+  var response = { isSuccess: true }
+
+  var query = req.params.query;
+  response.insurancePlans = await InsurancePlan.findAll({
+    attributes: [ 'id', ['insurance_carrier_id', 'insuranceCarrierId'], ['external_id', 'externalId'], 'name' ],
+    where: {
+      name: {
+        [Sequelize.Op.startsWith]: query
+      }
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
 
 router.post('/sync', async function(req, res, next) {
   var carrierResponse = { isSuccess: true }
