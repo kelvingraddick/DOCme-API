@@ -43,6 +43,23 @@ router.get('/plans/search/:query', async function(req, res, next) {
   res.json(response);
 });
 
+router.get('/carrier/:carrierId/plans/', async function(req, res, next) {
+  var response = { isSuccess: true }
+
+  var carrierId = req.params.carrierId;
+  response.insurancePlans = await InsurancePlan.findAll({
+    attributes: [ 'id', ['insurance_carrier_id', 'insuranceCarrierId'], ['external_id', 'externalId'], 'name' ],
+    where: {
+      insurance_carrier_id: carrierId
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
+
 router.post('/sync', async function(req, res, next) {
   var carrierResponse = { isSuccess: true }
 
