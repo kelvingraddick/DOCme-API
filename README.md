@@ -33,6 +33,7 @@ The variables you will need are:
 - Database host
 - Database username
 - Database password
+- Better Doctor API user key
 
 ## Running the project
     $ npm start
