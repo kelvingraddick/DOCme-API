@@ -1,19 +1,19 @@
-var User = require('../models/user');
+var Patient = require('../models/patient');
 
 var Authenticator = async function(req, res) {
     const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
     const [email_address, password] = Buffer.from(b64auth, 'base64').toString().split(':');
 
-    var users = await User.findAll({
+    var patients = await Patient.findAll({
       where: {
         email_address: email_address,
         password: password
       },
       limit: 1
     }).catch((error) => { });
-    if (users && users[0]) {
+    if (patients && patients[0]) {
       // Access granted...
-      return { isSuccess: true, user: users[0] };
+      return { isSuccess: true, patient: patients[0] };
     }
   
     res.set('WWW-Authenticate', 'Basic realm="401"');

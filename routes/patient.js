@@ -6,7 +6,7 @@ router.get('/signin', async function(req, res, next) {
   var authentication = await Authenticator(req, res);
   if (!authentication.isSuccess) return; 
 
-  res.send(JSON.stringify({ isSuccess: true, user: authentication.user }));
+  res.send(JSON.stringify({ isSuccess: true, patient: authentication.patient }));
 });
 
 module.exports = router;
