@@ -1,58 +1,70 @@
 const Sequelize = require('sequelize');
 
 module.exports = (database) => {
-  const Doctor = database.define('doctor',
+  const Practice = database.define('practice',
     {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
         allowNull: false
       },
-      practice_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true
-      },
-      is_approved: {
-        type: Sequelize.BOOLEAN,
-        allowNull: false
-      },
-      first_name: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false
-      },
-      last_name: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      email_address: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      phone_number: {
-        type: Sequelize.STRING,
-        allowNull: true
-      },
-      image_url: {
-        type: Sequelize.STRING,
-        allowNull: true
       },
       description: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      gender: {
+      website: {
         type: Sequelize.STRING,
         allowNull: true
       },
-      birth_date: {
-        type: Sequelize.DATE,
+      email_address: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      phone_number: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      fax_number: {
+        type: Sequelize.STRING,
         allowNull: true
       },
-      npi_number: {
+      address_line_1: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      address_line_2: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      city: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      state: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      postal_code: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      country_code: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      latitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: true
+      },
+      longitude: {
+        type: Sequelize.DOUBLE,
+        allowNull: true
+      },
+      image_url: {
         type: Sequelize.STRING,
         allowNull: true
       }
@@ -61,5 +73,5 @@ module.exports = (database) => {
       underscored: true
     }
   );
-  return Doctor;
+  return Practice;
 };

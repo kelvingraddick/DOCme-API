@@ -7,4 +7,10 @@ const Database = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_U
   timestamps: false
 });
 
+Database.Doctor = require('../models/doctor')(Database);
+Database.Practice = require('../models/practice')(Database);
+
+Database.Doctor.belongsTo(Database.Practice, { foreignKey: 'practice_id' });
+Database.Practice.hasMany(Database.Doctor, { foreignKey: 'id' });
+
 module.exports = Database;

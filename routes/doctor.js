@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 var Sequelize = require('sequelize');
+var Database = require('../helpers/database');
 var Authenticator = require('../helpers/authenticator');
-var Doctor = require('../models/doctor');
 
 router.get('/signin', async function(req, res, next) {
   var authentication = await Authenticator(req, res);
@@ -20,9 +20,10 @@ router.get('/search', async function(req, res, next) {
 	var insuranceCarrierId = req.params.insuranceCarrierId;
 	var insurancePlanId = req.params.insurancePlanId;
 
-  response.doctors = await Doctor.findAll({
+  response.doctors = await Database.Doctor.findAll({
     attributes: [
-			'id',
+      'id',
+      ['practice_id', 'practiceId'],
 			['is_approved', 'isApproved'],
 			['first_name', 'firstName'],
 			['last_name', 'lastName'],
@@ -32,8 +33,31 @@ router.get('/search', async function(req, res, next) {
 			'description',
 			'gender',
 			['birth_date', 'birthDate'],
-			['npi_number', 'npiNumber']
-		],
+      ['npi_number', 'npiNumber']
+    ],
+    include: [
+      { 
+        model: Database.Practice,
+        attributes: [
+          'id',
+          'name',
+          'description',
+          'website',
+          ['email_address', 'emailAddress'],
+          ['phone_number', 'phoneNumber'],
+          ['fax_number', 'faxNumber'],
+          ['address_line_1', 'addressLine1'],
+          ['address_line_2', 'addressLine2'],
+          'city',
+          'state',
+          ['postal_code', 'postalCode'],
+          ['country_code', 'countryCode'],
+          'latitude',
+          'longitude',
+          ['image_url', 'imageUrl']
+        ]
+      }
+    ],
     where: {
 			is_approved: true
     }
