@@ -9,8 +9,12 @@ const Database = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_U
 
 Database.Doctor = require('../models/doctor')(Database);
 Database.Practice = require('../models/practice')(Database);
+Database.Schedule = require('../models/schedule')(Database);
 
 Database.Doctor.belongsTo(Database.Practice, { foreignKey: 'practice_id' });
 Database.Practice.hasMany(Database.Doctor, { foreignKey: 'id' });
+
+Database.Schedule.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
+Database.Doctor.hasOne(Database.Schedule, { foreignKey: 'id' });
 
 module.exports = Database;
