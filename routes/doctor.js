@@ -90,6 +90,15 @@ router.get('/:id', async function(req, res, next) {
       ['npi_number', 'npiNumber']
     ],
     include: [
+      {
+        model: Database.Image,
+        attributes: [
+          'id',
+          ['doctor_id', 'doctorId'],
+          'url',
+          'description'
+        ]
+      },
       { 
         model: Database.Practice,
         attributes: [
