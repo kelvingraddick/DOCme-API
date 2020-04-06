@@ -16,9 +16,9 @@ Database.Image.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
 Database.Doctor.hasMany(Database.Image, { foreignKey: 'doctor_id' });
 
 Database.Doctor.belongsTo(Database.Practice, { foreignKey: 'practice_id' });
-Database.Practice.hasMany(Database.Doctor, { foreignKey: 'id' });
+Database.Practice.hasMany(Database.Doctor, { foreignKey: 'practice_id' });
 
 Database.Schedule.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
-Database.Doctor.hasOne(Database.Schedule, { foreignKey: 'id' });
+Database.Doctor.hasOne(Database.Schedule, { foreignKey: 'doctor_id' });
 
 module.exports = Database;
