@@ -7,6 +7,7 @@ const Database = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_U
   timestamps: false
 });
 
+Database.Patient = require('../models/patient')(Database);
 Database.Doctor = require('../models/doctor')(Database);
 Database.Image = require('../models/image')(Database);
 Database.Practice = require('../models/practice')(Database);

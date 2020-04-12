@@ -1,14 +1,10 @@
 var express = require('express');
 var router = express.Router();
-var Sequelize = require('sequelize');
 var Database = require('../helpers/database');
-var Authenticator = require('../helpers/authenticator');
+var authenticate = require('../middleware/authenticate');
 
-router.get('/signin', async function(req, res, next) {
-  var authentication = await Authenticator(req, res);
-  if (!authentication.isSuccess) return; 
-
-  res.send(JSON.stringify({ isSuccess: true, patient: authentication.patient }));
+router.post('/signin', authenticate, async function(req, res, next) {
+  res.json({ isSuccess: true, token: res.token, doctor: res.doctor });
 });
 
 router.get('/search', async function(req, res, next) {
