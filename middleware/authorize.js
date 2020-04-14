@@ -1,7 +1,6 @@
 var jwt = require('jsonwebtoken');
 var UserType = require('../constants/user-type');
-var Patient = require('../models/patient');
-var Doctor = require('../models/doctor');
+var Database = require('../helpers/database');
 
 async function authorize(req, res, next) {
   try {
@@ -10,14 +9,14 @@ async function authorize(req, res, next) {
     var decodedToken = jwt.verify(requestToken, process.env.TOKEN_SECRET, { issuer: 'DOCme' });
     if (decodedToken) {
       if (decodedToken.type == UserType.PATIENT) {
-        req.patient = await Patient
-          .findOne({ where: { id: decodedToken.sub } })
+        req.patient = await Database.Patient
+          .findOne({ where: { id: decodedToken.sub }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (req.patient) { return next(); }
         res.sendStatus(403);
       } else if (decodedToken.type == UserType.DOCTOR) {
-        req.doctor = await Doctor
-          .findOne({ where: { id: decodedToken.sub } })
+        req.doctor = await Database.Doctor
+          .findOne({ where: { id: decodedToken.sub }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (req.doctor) { return next(); }
         res.sendStatus(403);

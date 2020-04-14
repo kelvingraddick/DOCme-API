@@ -2,9 +2,14 @@ var express = require('express');
 var router = express.Router();
 var Database = require('../helpers/database');
 var authenticate = require('../middleware/authenticate');
+var authorize = require('../middleware/authorize');
 
-router.post('/signin', authenticate, async function(req, res, next) {
+router.post('/authenticate', authenticate, async function(req, res, next) {
   res.json({ isSuccess: true, token: res.token, doctor: res.doctor });
+});
+
+router.post('/authorize', authorize, async function(req, res, next) {
+  res.json({ isSuccess: true, doctor: req.doctor });
 });
 
 router.get('/search', async function(req, res, next) {
