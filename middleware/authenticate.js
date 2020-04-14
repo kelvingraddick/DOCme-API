@@ -10,7 +10,7 @@ async function authenticate(req, res, next) {
       var password = req.body.password;
       if (req.body.userType == UserType.PATIENT) {
         res.patient = await Database.Patient
-          .findOne({ where: { email_address: emailAddress, password: password } })
+          .findOne({ where: { email_address: emailAddress, password: password }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (res.patient) {
           res.token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: res.patient.id.toString(), issuer: 'DOCme', expiresIn: '3m' });
@@ -18,7 +18,7 @@ async function authenticate(req, res, next) {
         }
       } else if (req.body.userType == UserType.DOCTOR) {
         res.doctor = await Database.Doctor
-          .findOne({ where: { email_address: emailAddress, password: password } })
+          .findOne({ where: { email_address: emailAddress, password: password }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (res.doctor) {
           res.token = jwt.sign({ type: UserType.DOCTOR }, process.env.TOKEN_SECRET, { subject: res.doctor.id.toString(), issuer: 'DOCme', expiresIn: '3m' });
