@@ -13,7 +13,7 @@ async function authenticate(req, res, next) {
           .findOne({ where: { email_address: emailAddress, password: password }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (res.patient) {
-          res.token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: res.patient.id.toString(), issuer: 'DOCme', expiresIn: '3m' });
+          res.token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: res.patient.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
           return next();
         }
       } else if (req.body.userType == UserType.DOCTOR) {
@@ -21,7 +21,7 @@ async function authenticate(req, res, next) {
           .findOne({ where: { email_address: emailAddress, password: password }, attributes: { exclude: ['password'] } })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (res.doctor) {
-          res.token = jwt.sign({ type: UserType.DOCTOR }, process.env.TOKEN_SECRET, { subject: res.doctor.id.toString(), issuer: 'DOCme', expiresIn: '3m' });
+          res.token = jwt.sign({ type: UserType.DOCTOR }, process.env.TOKEN_SECRET, { subject: res.doctor.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
           return next();
         }
       }
