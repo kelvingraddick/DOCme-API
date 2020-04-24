@@ -6,6 +6,11 @@ module.exports = (database) => {
       id: {
         type: Sequelize.INTEGER,
         primaryKey: true,
+        autoIncrement: true,
+        allowNull: false
+      },
+      is_active: {
+        type: Sequelize.BOOLEAN,
         allowNull: false
       },
       first_name: {
@@ -23,6 +28,10 @@ module.exports = (database) => {
       password: {
         type: Sequelize.STRING,
         allowNull: false
+      },
+      image_url: {
+        type: Sequelize.STRING,
+        allowNull: true
       }
     }, {
       timestamps: false

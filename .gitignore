@@ -86,3 +86,9 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+
+# patient images
+public/images/patient/*
+
+# doctor images
+public/images/doctor/*
