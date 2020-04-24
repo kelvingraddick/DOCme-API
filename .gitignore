@@ -89,6 +89,8 @@ typings/
 
 # patient images
 public/images/patient/*
+!public/images/patient/test.png
 
 # doctor images
 public/images/doctor/*
+!public/images/doctor/test.png
