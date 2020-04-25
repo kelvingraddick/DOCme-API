@@ -8,6 +8,7 @@ var path = require('path');
 var Database = require('../helpers/database');
 var UserType = require('../constants/user-type');
 var ErrorType = require('../constants/error-type');
+var DatabaseAttributes = require('../constants/database-attributes');
 
 var imageStorage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -40,10 +41,15 @@ router.post('/register', upload.single('image'), async function(req, res, next) 
       password: req.body.password,
       image_url: req.file ? (req.protocol + '://' + req.get('host') + '/images/patient/' + req.file.filename) : null
     };
-    Database.Patient.create(newPatient)
-      .then(patient => {
-        var token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: patient.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
-        res.json({ isSuccess: true, patient: patient, token: token });
+    await Database.Patient.create(newPatient)
+      .then(async createdPatient => {
+        var foundPatient = await Database.Patient
+          .findOne({
+            where: { id: createdPatient.id },
+            attributes: DatabaseAttributes.PATIENT
+          });
+        var token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: foundPatient.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
+        res.json({ isSuccess: true, patient: foundPatient, token: token });
       })
       .catch(error => { 
         res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
