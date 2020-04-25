@@ -18,7 +18,7 @@ var imageStorage = multer.diskStorage({
     cb(null, 'patient.' + Date.now() + '.' + Math.round(Math.random() * 1E9) + path.extname(file.originalname));
   }
 })
-var upload = multer({ storage: imageStorage });
+var upload = multer({ storage: imageStorage, limits: { fieldSize: 8 * 1024 * 1024 } });
 
 router.post('/authenticate', authenticate, async function(req, res, next) {
   res.json({ isSuccess: true, token: res.token, patient: res.patient });
