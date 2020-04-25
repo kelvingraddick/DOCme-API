@@ -41,7 +41,7 @@ router.post('/register', upload.single('image'), async function(req, res, next) 
       password: req.body.password,
       image_url: req.file ? (req.protocol + '://' + req.get('host') + '/images/patient/' + req.file.filename) : null
     };
-    await Database.Patient.create(newPatient)
+    Database.Patient.create(newPatient)
       .then(async createdPatient => {
         var foundPatient = await Database.Patient
           .findOne({
