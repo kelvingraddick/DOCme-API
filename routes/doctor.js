@@ -3,6 +3,7 @@ var router = express.Router();
 var Database = require('../helpers/database');
 var authenticate = require('../middleware/authenticate');
 var authorize = require('../middleware/authorize');
+var DatabaseAttributes = require('../constants/database-attributes');
 
 router.post('/authenticate', authenticate, async function(req, res, next) {
   res.json({ isSuccess: true, token: res.token, doctor: res.doctor });
@@ -22,20 +23,7 @@ router.get('/search', async function(req, res, next) {
 	var insurancePlanId = req.params.insurancePlanId;
 
   response.doctors = await Database.Doctor.findAll({
-    attributes: [
-      'id',
-      ['practice_id', 'practiceId'],
-			['is_approved', 'isApproved'],
-			['first_name', 'firstName'],
-			['last_name', 'lastName'],
-			['email_address', 'emailAddress'],
-			['phone_number', 'phoneNumber'],
-			['image_url', 'imageUrl'],
-			'description',
-			'gender',
-			['birth_date', 'birthDate'],
-      ['npi_number', 'npiNumber']
-    ],
+    attributes: DatabaseAttributes.DOCTOR,
     include: [
       { 
         model: Database.Practice,
@@ -76,20 +64,7 @@ router.get('/:id', async function(req, res, next) {
 	var id = req.params.id;
 
   response.doctor = await Database.Doctor.findOne({
-    attributes: [
-      'id',
-      ['practice_id', 'practiceId'],
-			['is_approved', 'isApproved'],
-			['first_name', 'firstName'],
-			['last_name', 'lastName'],
-			['email_address', 'emailAddress'],
-			['phone_number', 'phoneNumber'],
-			['image_url', 'imageUrl'],
-			'description',
-			'gender',
-			['birth_date', 'birthDate'],
-      ['npi_number', 'npiNumber']
-    ],
+    attributes: DatabaseAttributes.DOCTOR,
     include: [
       {
         model: Database.Image,

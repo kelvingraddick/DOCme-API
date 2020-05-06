@@ -1,13 +1,13 @@
 var express = require('express');
 var router = express.Router();
 var Sequelize = require('sequelize');
-var Specialty = require('../models/specialty');
+var Database = require('../helpers/database');
 
 router.get('/search/:query', async function(req, res, next) {
   var response = { isSuccess: true }
 
   var query = req.params.query;
-  response.specialties = await Specialty.findAll({
+  response.specialties = await Database.Specialty.findAll({
     where: {
       name: {
         [Sequelize.Op.startsWith]: query
@@ -18,7 +18,7 @@ router.get('/search/:query', async function(req, res, next) {
     response.errorMessage = error.message;
   });
 
-  res.send(JSON.stringify(response));
+  res.json(response);
 });
 
 module.exports = router;
