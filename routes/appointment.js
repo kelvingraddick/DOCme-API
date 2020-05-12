@@ -92,4 +92,62 @@ router.post('/book', authorize, async function(req, res, next) {
     });
 });
 
+router.post('/:appointmentId/update', authorize, async function(req, res, next) {
+	var id = req.params.appointmentId;
+  Database.Appointment.findOne({
+    attributes: DatabaseAttributes.APPOINTMENT,
+    include: [
+      {
+        model: Database.Doctor,
+        attributes: DatabaseAttributes.DOCTOR
+      },
+      { 
+        model: Database.Patient,
+        attributes: DatabaseAttributes.PATIENT
+      },
+      { 
+        model: Database.Specialty
+      }
+    ],
+    where: {
+			id: id
+    }
+  })
+  .then(async function(appointment) {
+    if (appointment) {
+      appointment.specialtyId = req.body.specialtyId;
+      appointment.timestamp = req.body.timestamp;
+      appointment.isNewPatient = req.body.isNewPatient;
+      appointment.notes = req.body.notes;
+      await appointment.save();
+      res.json({ isSuccess: true, appointment: appointment });
+    } else {
+      res.json({ isSuccess: false, errorCode: ErrorType.NO_DATA_FOUND, errorMessage: 'Could not find appointment' });
+    }
+  })
+  .catch((error) => {
+    res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+  });
+});
+
+router.post('/:appointmentId/delete', authorize, async function(req, res, next) {
+	var id = req.params.appointmentId;
+  Database.Appointment.findOne({
+    where: {
+			id: id
+    }
+  })
+  .then(async function(appointment) {
+    if (appointment) {
+      await appointment.destroy();
+      res.json({ isSuccess: true });
+    } else {
+      res.json({ isSuccess: false, errorCode: ErrorType.NO_DATA_FOUND, errorMessage: 'Could not find appointment' });
+    }
+  })
+  .catch((error) => {
+    res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+  });
+});
+
 module.exports = router;
