@@ -94,33 +94,39 @@ router.post('/book', authorize, async function(req, res, next) {
 
 router.post('/:appointmentId/update', authorize, async function(req, res, next) {
 	var id = req.params.appointmentId;
-  Database.Appointment.findOne({
-    attributes: DatabaseAttributes.APPOINTMENT,
-    include: [
-      {
-        model: Database.Doctor,
-        attributes: DatabaseAttributes.DOCTOR
-      },
-      { 
-        model: Database.Patient,
-        attributes: DatabaseAttributes.PATIENT
-      },
-      { 
-        model: Database.Specialty
-      }
-    ],
-    where: {
-			id: id
-    }
-  })
+  Database.Appointment.findOne({ where: { id: id } })
   .then(async function(appointment) {
     if (appointment) {
-      appointment.specialty_id = appointment.specialtyId = req.body.specialtyId;
+      appointment.specialty_id = req.body.specialtyId;
       appointment.timestamp = req.body.timestamp;
-      appointment.is_new_patient = appointment.isNewPatient = req.body.isNewPatient;
+      appointment.is_new_patient = req.body.isNewPatient;
       appointment.notes = req.body.notes;
       await appointment.save();
-      res.json({ isSuccess: true, appointment: appointment });
+      Database.Appointment.findOne({
+        attributes: DatabaseAttributes.APPOINTMENT,
+        include: [
+          {
+            model: Database.Doctor,
+            attributes: DatabaseAttributes.DOCTOR
+          },
+          { 
+            model: Database.Patient,
+            attributes: DatabaseAttributes.PATIENT
+          },
+          { 
+            model: Database.Specialty
+          }
+        ],
+        where: {
+          id: id
+        }
+      })
+      .then(async function(appointment) {
+        res.json({ isSuccess: true, appointment: appointment });
+      })
+      .catch((error) => {
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
     } else {
       res.json({ isSuccess: false, errorCode: ErrorType.NO_DATA_FOUND, errorMessage: 'Could not find appointment' });
     }
