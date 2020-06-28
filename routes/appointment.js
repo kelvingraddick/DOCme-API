@@ -115,9 +115,9 @@ router.post('/:appointmentId/update', authorize, async function(req, res, next) 
   })
   .then(async function(appointment) {
     if (appointment) {
-      appointment.specialtyId = req.body.specialtyId;
+      appointment.specialty_id = req.body.specialtyId;
       appointment.timestamp = req.body.timestamp;
-      appointment.isNewPatient = req.body.isNewPatient;
+      appointment.is_new_patient = req.body.isNewPatient;
       appointment.notes = req.body.notes;
       await appointment.save();
       res.json({ isSuccess: true, appointment: appointment });
