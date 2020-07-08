@@ -4,6 +4,7 @@ var https = require('https');
 var Sequelize = require('sequelize');
 var InsuranceCarrier = require('../models/insurance-carrier');
 var InsurancePlan = require('../models/insurance-plan');
+var searchTermBlacklist = [];
 
 router.get('/carriers/search/:query', async function(req, res, next) {
   var response = { isSuccess: true }
@@ -27,9 +28,10 @@ router.get('/carriers/search/:query', async function(req, res, next) {
 router.get('/carriers/search/card/:text', async function(req, res, next) {
   var response = { isSuccess: true }
 
-  var terms = req.params.text && req.params.text.split(',');
+  var terms = req.params.text && req.params.text.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
   var insuranceCarriers = await InsuranceCarrier.findAll({
     attributes: [ 'id', ['external_id', 'externalId'], 'name' ],
+    raw: true
   }).catch((error) => {
     response.isSuccess = false;
     response.errorMessage = error.message;
@@ -41,11 +43,18 @@ router.get('/carriers/search/card/:text', async function(req, res, next) {
     var term = terms[i].replace(' ', '').toLowerCase();
     for (var j = 0; j < insuranceCarriers.length; j++) {
       var insuranceCarrierName = insuranceCarriers[j].name.replace(' ', '').toLowerCase();
-      if (insuranceCarrierName.includes(term)) {
-        response.insuranceCarriers.push(insuranceCarriers[j]);
+      if (insuranceCarrierName.includes(term) || term.includes(insuranceCarrierName)) {
+        if (!insuranceCarriers[j].confidence) {
+          insuranceCarriers[j].confidence = 1;
+          response.insuranceCarriers.push(insuranceCarriers[j]);
+        } else {
+          insuranceCarriers[j].confidence++;
+        }
       }
     }
   }
+
+  response.insuranceCarriers.sort((a, b) => b.confidence - a.confidence);
 
   res.json(response);
 });
@@ -90,13 +99,14 @@ router.get('/carrier/:carrierId/plans/search/card/:text', async function(req, re
   var response = { isSuccess: true }
 
   var carrierId = req.params.carrierId;
-  var terms = req.params.text && req.params.text.split(',');
+  var terms = req.params.text && req.params.text.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
 
   var insurancePlans = await InsurancePlan.findAll({
     attributes: [ 'id', ['insurance_carrier_id', 'insuranceCarrierId'], ['external_id', 'externalId'], 'name' ],
     where: {
       insurance_carrier_id: carrierId
-    }
+    },
+    raw: true
   }).catch((error) => {
     response.isSuccess = false;
     response.errorMessage = error.message;
@@ -108,11 +118,18 @@ router.get('/carrier/:carrierId/plans/search/card/:text', async function(req, re
     var term = terms[i].replace(' ', '').toLowerCase();
     for (var j = 0; j < insurancePlans.length; j++) {
       var insurancePlanName = insurancePlans[j].name.replace(' ', '').toLowerCase();
-      if (insurancePlanName .includes(term)) {
-        response.insurancePlans.push(insurancePlans[j]);
+      if (insurancePlanName.includes(term) || term.includes(insurancePlanName)) {
+        if (!insurancePlans[j].confidence) {
+          insurancePlans[j].confidence = 1;
+          response.insurancePlans.push(insurancePlans[j]);
+        } else {
+          insurancePlans[j].confidence++;
+        }
       }
     }
   }
+
+  response.insurancePlans.sort((a, b) => b.confidence - a.confidence);
 
   res.json(response);
 });
