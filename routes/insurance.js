@@ -25,10 +25,10 @@ router.get('/carriers/search/:query', async function(req, res, next) {
   res.json(response);
 });
 
-router.get('/carriers/search/card/', async function(req, res, next) {
+router.get('/carriers/card/', async function(req, res, next) {
   var response = { isSuccess: true }
 
-  var terms = req.query.query && req.query.query.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
+  var terms = req.query.terms && req.query.terms.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
   var insuranceCarriers = await InsuranceCarrier.findAll({
     attributes: [ 'id', ['external_id', 'externalId'], 'name' ],
     raw: true
@@ -95,11 +95,11 @@ router.get('/carrier/:carrierId/plans/', async function(req, res, next) {
   res.json(response);
 });
 
-router.get('/carrier/:carrierId/plans/search/card/', async function(req, res, next) {
+router.get('/carrier/:carrierId/plans/card/', async function(req, res, next) {
   var response = { isSuccess: true }
 
   var carrierId = req.params.carrierId;
-  var terms = req.query.query && req.query.query.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
+  var terms = req.query.terms && req.query.terms.split(',').filter(x => !searchTermBlacklist.includes(x.toLowerCase()) && isNaN(x) && x.length > 2);
 
   var insurancePlans = await InsurancePlan.findAll({
     attributes: [ 'id', ['insurance_carrier_id', 'insuranceCarrierId'], ['external_id', 'externalId'], 'name' ],
