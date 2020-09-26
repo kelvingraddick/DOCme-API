@@ -20,6 +20,7 @@ async function authenticate(req, res, next) {
               ['email_address', 'emailAddress'],
               ['phone_number', 'phoneNumber'],
               'gender',
+              'race',
               ['birth_date', 'birthDate'],
               ['address_line_1', 'addressLine1'],
               ['address_line_2', 'addressLine2'],
@@ -54,6 +55,7 @@ async function authenticate(req, res, next) {
               ['image_url', 'imageUrl'],
               'description',
               'gender',
+              'race',
               ['birth_date', 'birthDate'],
               ['npi_number', 'npiNumber']
             ],

@@ -7,6 +7,7 @@ const DatabaseAttributes = {
     ['email_address', 'emailAddress'],
     ['phone_number', 'phoneNumber'],
     'gender',
+    'race',
     ['birth_date', 'birthDate'],
     ['address_line_1', 'addressLine1'],
     ['address_line_2', 'addressLine2'],
@@ -31,6 +32,7 @@ const DatabaseAttributes = {
     ['image_url', 'imageUrl'],
     'description',
     'gender',
+    'race',
     ['birth_date', 'birthDate'],
     ['npi_number', 'npiNumber']
   ],

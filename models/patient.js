@@ -29,6 +29,14 @@ module.exports = (database) => {
         type: Sequelize.STRING,
         allowNull: false
       },
+      gender: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      race: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       image_url: {
         type: Sequelize.STRING,
         allowNull: true

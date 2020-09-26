@@ -49,6 +49,10 @@ module.exports = (database) => {
         type: Sequelize.STRING,
         allowNull: true
       },
+      race: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       birth_date: {
         type: Sequelize.DATE,
         allowNull: true
