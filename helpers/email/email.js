@@ -1,9 +1,11 @@
 var sendgrid = require('@sendgrid/mail');
 var WelcomeTemplate = require('../email/templates/welcome');
+var AppointmentBookedTemplate = require('../email/templates/appointment-booked');
 
 const Email = {
   templates: {
-    WELCOME: WelcomeTemplate
+    WELCOME: WelcomeTemplate,
+    APPOINTMENT_BOOKED: AppointmentBookedTemplate
   },
   send: async function(to, subject, preheader, template, fields) {
     sendgrid.setApiKey(process.env.SENDGRID_API_KEY);

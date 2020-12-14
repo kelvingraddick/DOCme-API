@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Database = require('../helpers/database');
+var Email = require('../helpers/email/email');
 var authorize = require('../middleware/authorize');
 var DatabaseAttributes = require('../constants/database-attributes');
 var ErrorType = require('../constants/error-type');
@@ -83,8 +84,45 @@ router.post('/book', authorize, async function(req, res, next) {
       var foundAppointment = await Database.Appointment
         .findOne({
           where: { id: createdAppointment.id },
-          attributes: DatabaseAttributes.APPOINTMENT
+          attributes: DatabaseAttributes.APPOINTMENT,
+          include: [
+            {
+              model: Database.Doctor,
+              attributes: DatabaseAttributes.DOCTOR,
+              include: [
+                { 
+                  model: Database.Practice,
+                  attributes: DatabaseAttributes.PRACTICE
+                }
+              ]
+            },
+            { 
+              model: Database.Patient,
+              attributes: DatabaseAttributes.PATIENT
+            },
+            { 
+              model: Database.Specialty
+            }
+          ],
         });
+      
+      var patient = foundAppointment.get().patient.get();
+      var doctor = foundAppointment.get().doctor.get();
+      var practice = doctor.practice.get();
+      await Email.send(
+        patient.emailAddress,
+        'Your appointment is booked on DOCme!',
+        'Thank you for booking an appointment with DOCme!',
+        Email.templates.APPOINTMENT_BOOKED,
+        {
+          doctor_name: doctor.firstName + ' ' + doctor.lastName,
+          doctor_location: practice.addressLine1 + ' ' + (practice.addressLine2 ? practice.addressLine2 + ' ' : '') + practice.city + ', ' + practice.state + ' ' + practice.postalCode,
+          date_and_time: foundAppointment.get().timestamp,
+          reason: foundAppointment.get().specialty.get().name
+        })
+        .then(() => {}, error => console.error('Email error: ' + error.message))
+        .catch(error => console.error('Email error: ' + error.message));
+      
       res.json({ isSuccess: true, appointment: foundAppointment });
     })
     .catch(error => { 

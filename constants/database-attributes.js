@@ -36,6 +36,24 @@ const DatabaseAttributes = {
     ['birth_date', 'birthDate'],
     ['npi_number', 'npiNumber']
   ],
+  PRACTICE: [
+    'id',
+    'name',
+    'description',
+    'website',
+    ['email_address', 'emailAddress'],
+    ['phone_number', 'phoneNumber'],
+    ['fax_number', 'faxNumber'],
+    ['address_line_1', 'addressLine1'],
+    ['address_line_2', 'addressLine2'],
+    'city',
+    'state',
+    ['postal_code', 'postalCode'],
+    ['country_code', 'countryCode'],
+    'latitude',
+    'longitude',
+    ['image_url', 'imageUrl']
+  ],
   APPOINTMENT: [
     'id',
     ['patient_id', 'patientId'],
