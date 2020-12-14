@@ -5,6 +5,7 @@ var authorize = require('../middleware/authorize');
 var jwt = require('jsonwebtoken');
 var path = require('path');
 var Database = require('../helpers/database');
+var Email = require('../helpers/email/email');
 var UserType = require('../constants/user-type');
 var ErrorType = require('../constants/error-type');
 var DatabaseAttributes = require('../constants/database-attributes');
@@ -39,6 +40,11 @@ router.post('/register', async function(req, res, next) {
             where: { id: createdPatient.id },
             attributes: DatabaseAttributes.PATIENT
           });
+        
+        await Email.send(foundPatient.get().emailAddress, 'Welcome to DOCme ' + foundPatient.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+
         var token = jwt.sign({ type: UserType.PATIENT }, process.env.TOKEN_SECRET, { subject: foundPatient.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
         res.json({ isSuccess: true, patient: foundPatient, token: token });
       })
