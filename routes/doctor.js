@@ -27,24 +27,7 @@ router.get('/search', async function(req, res, next) {
     include: [
       { 
         model: Database.Practice,
-        attributes: [
-          'id',
-          'name',
-          'description',
-          'website',
-          ['email_address', 'emailAddress'],
-          ['phone_number', 'phoneNumber'],
-          ['fax_number', 'faxNumber'],
-          ['address_line_1', 'addressLine1'],
-          ['address_line_2', 'addressLine2'],
-          'city',
-          'state',
-          ['postal_code', 'postalCode'],
-          ['country_code', 'countryCode'],
-          'latitude',
-          'longitude',
-          ['image_url', 'imageUrl']
-        ]
+        attributes: DatabaseAttributes.PRACTICE
       }
     ],
     where: {
@@ -77,24 +60,7 @@ router.get('/:id', async function(req, res, next) {
       },
       { 
         model: Database.Practice,
-        attributes: [
-          'id',
-          'name',
-          'description',
-          'website',
-          ['email_address', 'emailAddress'],
-          ['phone_number', 'phoneNumber'],
-          ['fax_number', 'faxNumber'],
-          ['address_line_1', 'addressLine1'],
-          ['address_line_2', 'addressLine2'],
-          'city',
-          'state',
-          ['postal_code', 'postalCode'],
-          ['country_code', 'countryCode'],
-          'latitude',
-          'longitude',
-          ['image_url', 'imageUrl']
-        ]
+        attributes: DatabaseAttributes.PRACTICE
       },
       { 
         model: Database.Schedule,
