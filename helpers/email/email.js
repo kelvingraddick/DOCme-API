@@ -1,10 +1,12 @@
 var sendgrid = require('@sendgrid/mail');
 var WelcomeTemplate = require('../email/templates/welcome');
+var WelcomeDoctorTemplate = require('../email/templates/welcome-doctor');
 var AppointmentBookedTemplate = require('../email/templates/appointment-booked');
 
 const Email = {
   templates: {
     WELCOME: WelcomeTemplate,
+    WELCOME_DOCTOR: WelcomeDoctorTemplate,
     APPOINTMENT_BOOKED: AppointmentBookedTemplate
   },
   send: async function(to, subject, preheader, template, fields) {

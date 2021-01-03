@@ -1,8 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var Database = require('../helpers/database');
 var authenticate = require('../middleware/authenticate');
 var authorize = require('../middleware/authorize');
+var jwt = require('jsonwebtoken');
+var Database = require('../helpers/database');
+var Email = require('../helpers/email/email');
+var UserType = require('../constants/user-type');
+var ErrorType = require('../constants/error-type');
 var DatabaseAttributes = require('../constants/database-attributes');
 
 router.post('/authenticate', authenticate, async function(req, res, next) {
@@ -11,6 +15,56 @@ router.post('/authenticate', authenticate, async function(req, res, next) {
 
 router.post('/authorize', authorize, async function(req, res, next) {
   res.json({ isSuccess: true, doctor: req.doctor });
+});
+
+router.post('/register', async function(req, res, next) {
+  var existingDoctor = await Database.Doctor.findOne({ where: { email_address: req.body.emailAddress } });
+  if (existingDoctor) {
+    res.json({ isSuccess: false, errorCode: ErrorType.EMAIL_TAKEN, errorMessage: 'This email address is already taken.' });
+  } else {
+    var newDoctor = {
+      is_approved: true,
+      first_name: req.body.firstName,
+      last_name: req.body.lastName,
+      email_address: req.body.emailAddress,
+      password: req.body.password,
+      gender: req.body.gender,
+      race: req.body.race,
+      image_url: req.body.imageUrl
+    };
+    Database.Doctor.create(newDoctor)
+      .then(async createdDoctor => {
+        var foundDoctor = await Database.Doctor
+          .findOne({
+            where: { id: createdDoctor.id },
+            attributes: DatabaseAttributes.DOCTOR,
+            include: [
+              {
+                model: Database.Image,
+                attributes: DatabaseAttributes.IMAGE
+              },
+              { 
+                model: Database.Practice,
+                attributes: DatabaseAttributes.PRACTICE
+              },
+              { 
+                model: Database.Schedule,
+                attributes: DatabaseAttributes.SCHEDULE
+              }
+            ]
+          });
+        
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+
+        var token = jwt.sign({ type: UserType.DOCTOR }, process.env.TOKEN_SECRET, { subject: foundDoctor.id.toString(), issuer: 'DOCme', expiresIn: '90d' });
+        res.json({ isSuccess: true, doctor: foundDoctor, token: token });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
 });
 
 router.get('/search', async function(req, res, next) {
