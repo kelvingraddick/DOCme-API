@@ -41,7 +41,7 @@ router.post('/register', async function(req, res, next) {
             attributes: DatabaseAttributes.PATIENT
           });
         
-        await Email.send(foundPatient.get().emailAddress, 'Welcome to DOCme ' + foundPatient.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME)
+        await Email.send(foundPatient.get().emailAddress, 'Welcome to DOCme ' + foundPatient.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_PATIENT)
           .then(() => {}, error => console.error('Email error: ' + error.message))
           .catch(error => console.error('Email error: ' + error.message));
 
