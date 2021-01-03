@@ -70,6 +70,37 @@ router.get('/patient/:patientId/list/', authorize, async function(req, res, next
   res.json(response);
 });
 
+router.get('/doctor/:doctorId/list/', authorize, async function(req, res, next) {
+  var response = { isSuccess: true }
+
+	var doctorId = req.params.doctorId;
+
+  response.appointments = await Database.Appointment.findAll({
+    attributes: DatabaseAttributes.APPOINTMENT,
+    include: [
+      {
+        model: Database.Doctor,
+        attributes: DatabaseAttributes.DOCTOR
+      },
+      { 
+        model: Database.Patient,
+        attributes: DatabaseAttributes.PATIENT
+      },
+      { 
+        model: Database.Specialty
+      }
+    ],
+    where: {
+			doctor_id: doctorId
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
+
 router.post('/book', authorize, async function(req, res, next) {
   var newAppointment = {
     patient_id: req.body.patientId,
