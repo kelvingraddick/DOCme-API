@@ -58,15 +58,11 @@ router.post('/:patientId/update', authorize, async function(req, res, next) {
   var patientId = req.params.patientId;
   if (patientId != req.patient.id) {
     res.sendStatus(403);
-  } else if (await Database.Patient.findOne({ where: { id: { [Sequelize.Op.ne]: patientId }, email_address: req.body.emailAddress } })) {
-    res.json({ isSuccess: false, errorCode: ErrorType.EMAIL_TAKEN, errorMessage: 'This email address is already taken.' });
   } else {
     var updatedPatient = {
       is_active: true,
       first_name: req.body.firstName,
       last_name: req.body.lastName,
-      email_address: req.body.emailAddress,
-      password: req.body.password,
       gender: req.body.gender,
       race: req.body.race,
       image_url: req.body.imageUrl
