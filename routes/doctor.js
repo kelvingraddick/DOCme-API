@@ -67,6 +67,57 @@ router.post('/register', async function(req, res, next) {
   }
 });
 
+router.post('/:doctorId/update', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    var updatedDoctor = {
+      is_active: true,
+      first_name: req.body.firstName,
+      last_name: req.body.lastName,
+      gender: req.body.gender,
+      race: req.body.race,
+      image_url: req.body.imageUrl
+    };
+    Database.Doctor.update(updatedDoctor, { where: { id: doctorId } })
+      .then(async numberUpdated => {
+        console.info('Number of doctors updated: ' + numberUpdated);
+
+        var foundDoctor = await Database.Doctor
+          .findOne({
+            where: { id: doctorId },
+            attributes: DatabaseAttributes.DOCTOR,
+            include: [
+              {
+                model: Database.Image,
+                attributes: DatabaseAttributes.IMAGE
+              },
+              { 
+                model: Database.Practice,
+                attributes: DatabaseAttributes.PRACTICE
+              },
+              { 
+                model: Database.Schedule,
+                attributes: DatabaseAttributes.SCHEDULE
+              }
+            ]
+          });
+        
+        /* TODO: doctor changed email
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, doctor: foundDoctor });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 router.get('/search', async function(req, res, next) {
   var response = { isSuccess: true }
 
