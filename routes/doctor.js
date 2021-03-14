@@ -80,7 +80,6 @@ router.post('/:doctorId/update', authorize, async function(req, res, next) {
       first_name: req.body.firstName,
       last_name: req.body.lastName,
       email_address: req.body.emailAddress,
-      password: req.body.password,
       gender: req.body.gender,
       race: req.body.race,
       image_url: req.body.imageUrl
