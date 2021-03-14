@@ -69,13 +69,18 @@ router.post('/register', async function(req, res, next) {
 
 router.post('/:doctorId/update', authorize, async function(req, res, next) {
   var doctorId = req.params.doctorId;
-  if (doctorId != req.doctor.id) {
+  var existingDoctor = await Database.Doctor.findOne({ where: { email_address: req.body.emailAddress } });
+  if (existingDoctor && existingDoctor.id != doctorId) {
+    res.json({ isSuccess: false, errorCode: ErrorType.EMAIL_TAKEN, errorMessage: 'This email address is already taken.' });
+  } else if (doctorId != req.doctor.id) {
     res.sendStatus(403);
   } else {
     var updatedDoctor = {
       is_active: true,
       first_name: req.body.firstName,
       last_name: req.body.lastName,
+      email_address: req.body.emailAddress,
+      password: req.body.password,
       gender: req.body.gender,
       race: req.body.race,
       image_url: req.body.imageUrl
