@@ -95,4 +95,39 @@ router.post('/:patientId/update', authorize, async function(req, res, next) {
   }
 });
 
+router.post('/:patientId/update/password', authorize, async function(req, res, next) {
+  var patientId = req.params.patientId;
+  var isCurrentPasswordCorrect = await Database.Patient.findOne({ where: { id: patientId, password: req.body.currentPassword } }); // TODO: update to encryption
+  if (!isCurrentPasswordCorrect) {
+    res.json({ isSuccess: false, errorCode: ErrorType.INVALID_CREDENTIALS, errorMessage: 'This current password is not correct.' });
+  } else if (patientId != req.patient.id) {
+    res.sendStatus(403);
+  } else {
+    var updatedPatient = {
+      password: req.body.newPassword,
+    };
+    Database.Patient.update(updatedPatient, { where: { id: patientId } })
+      .then(async numberUpdated => {
+        console.info('Number of patients updated: ' + numberUpdated);
+
+        var foundPatient = await Database.Patient
+          .findOne({
+            where: { id: patientId },
+            attributes: DatabaseAttributes.PATIENT
+          });
+        
+        /* TODO: patient password changed email
+        await Email.send(foundPatient.get().emailAddress, 'Welcome to DOCme ' + foundPatient.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_PATIENT)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, patient: foundPatient });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 module.exports = router;

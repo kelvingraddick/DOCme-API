@@ -122,6 +122,55 @@ router.post('/:doctorId/update', authorize, async function(req, res, next) {
   }
 });
 
+router.post('/:doctorId/update/password', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  var isCurrentPasswordCorrect = await Database.Doctor.findOne({ where: { id: doctorId, password: req.body.currentPassword } }); // TODO: update to encryption
+  if (!isCurrentPasswordCorrect) {
+    res.json({ isSuccess: false, errorCode: ErrorType.INVALID_CREDENTIALS, errorMessage: 'This current password is not correct.' });
+  } else if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    var updatedDoctor = {
+      password: req.body.newPassword,
+    };
+    Database.Doctor.update(updatedDoctor, { where: { id: doctorId } })
+      .then(async numberUpdated => {
+        console.info('Number of doctors updated: ' + numberUpdated);
+
+        var foundDoctor = await Database.Doctor
+          .findOne({
+            where: { id: doctorId },
+            attributes: DatabaseAttributes.DOCTOR,
+            include: [
+              {
+                model: Database.Image,
+                attributes: DatabaseAttributes.IMAGE
+              },
+              { 
+                model: Database.Practice,
+                attributes: DatabaseAttributes.PRACTICE
+              },
+              { 
+                model: Database.Schedule,
+                attributes: DatabaseAttributes.SCHEDULE
+              }
+            ]
+          });
+        
+        /* TODO: doctor password changed email
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, doctor: foundDoctor });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 router.get('/search', async function(req, res, next) {
   var response = { isSuccess: true }
 
