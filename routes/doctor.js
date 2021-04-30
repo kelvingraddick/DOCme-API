@@ -171,6 +171,76 @@ router.post('/:doctorId/update/password', authorize, async function(req, res, ne
   }
 });
 
+router.post('/:doctorId/update/practice', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    Database.Practice
+      .findOne({ where: { id: req.doctor.toJSON().practiceId } })
+      .then(async function(foundPractice) {
+        var newPractice = {
+          name: req.body.name,
+          description: req.body.description,
+          website: req.body.website,
+          email_address: req.body.emailAddress,
+          phone_number: req.body.phoneNumber,
+          fax_number: req.body.faxNumber,
+          address_line_1: req.body.addressLine1,
+          address_line_2: req.body.addressLine2,
+          city: req.body.city,
+          state: req.body.state,
+          postal_code: req.body.postalCode,
+          country_code: req.body.countryCode,
+          latitude: req.body.latitude,
+          longitude: req.body.longitude,
+          image_url: req.body.imageUrl
+        };
+
+        if (foundPractice) {
+          await Database.Practice.update(newPractice, { where: { id: foundPractice.id } });
+        } else {
+          var createdPractice = await Database.Practice.create(newPractice);
+          var updatedDoctor = {
+            practice_id: createdPractice.id
+          };
+          await Database.Doctor.update(updatedDoctor, { where: { id: doctorId } });
+        }
+
+        var foundDoctor = await Database.Doctor
+        .findOne({
+          where: { id: doctorId },
+          attributes: DatabaseAttributes.DOCTOR,
+          include: [
+            {
+              model: Database.Image,
+              attributes: DatabaseAttributes.IMAGE
+            },
+            { 
+              model: Database.Practice,
+              attributes: DatabaseAttributes.PRACTICE
+            },
+            { 
+              model: Database.Schedule,
+              attributes: DatabaseAttributes.SCHEDULE
+            }
+          ]
+        });
+        
+        /* TODO: doctor changed email
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, doctor: foundDoctor });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 router.get('/search', async function(req, res, next) {
   var response = { isSuccess: true }
 
