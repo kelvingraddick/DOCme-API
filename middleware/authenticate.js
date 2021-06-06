@@ -2,6 +2,7 @@ var jwt = require('jsonwebtoken');
 var IdentityType = require('../constants/identity-type');
 var UserType = require('../constants/user-type');
 var Database = require('../helpers/database');
+var DatabaseAttributes = require('../constants/database-attributes');
 
 async function authenticate(req, res, next) {
   try {
@@ -44,42 +45,19 @@ async function authenticate(req, res, next) {
         res.doctor = await Database.Doctor
           .findOne({
             where: { email_address: emailAddress, password: password },
-            attributes: [
-              'id',
-              ['practice_id', 'practiceId'],
-              ['is_approved', 'isApproved'],
-              ['first_name', 'firstName'],
-              ['last_name', 'lastName'],
-              ['email_address', 'emailAddress'],
-              ['phone_number', 'phoneNumber'],
-              ['image_url', 'imageUrl'],
-              'description',
-              'gender',
-              'race',
-              ['birth_date', 'birthDate'],
-              ['npi_number', 'npiNumber']
-            ],
+            attributes: DatabaseAttributes.DOCTOR,
             include: [
+              {
+                model: Database.Image,
+                attributes: DatabaseAttributes.IMAGE
+              },
               { 
                 model: Database.Practice,
-                attributes: [
-                  'id',
-                  'name',
-                  'description',
-                  'website',
-                  ['email_address', 'emailAddress'],
-                  ['phone_number', 'phoneNumber'],
-                  ['fax_number', 'faxNumber'],
-                  ['address_line_1', 'addressLine1'],
-                  ['address_line_2', 'addressLine2'],
-                  'city',
-                  'state',
-                  ['postal_code', 'postalCode'],
-                  ['country_code', 'countryCode'],
-                  'latitude',
-                  'longitude',
-                  ['image_url', 'imageUrl']
-                ]
+                attributes: DatabaseAttributes.PRACTICE
+              },
+              { 
+                model: Database.Schedule,
+                attributes: DatabaseAttributes.SCHEDULE
               }
             ]
           })
