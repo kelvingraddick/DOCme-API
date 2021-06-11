@@ -241,6 +241,86 @@ router.post('/:doctorId/update/practice', authorize, async function(req, res, ne
   }
 });
 
+router.post('/:doctorId/update/schedule', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    Database.Schedule
+      .findOne({ where: { doctor_id: req.doctor.id } })
+      .then(async function(foundSchedule) {
+        var newSchedule = {
+          doctor_id: req.doctor.id,
+          sunday_availability_start_time: req.body.sundayAvailabilityStartTime,
+          sunday_availability_end_time: req.body.sundayAvailabilityEndTime,
+          sunday_break_start_time: req.body.sundayBreakStartTime,
+          sunday_break_end_time: req.body.sundayBreakEndTime,
+          monday_availability_start_time: req.body.mondayAvailabilityStartTime,
+          monday_availability_end_time: req.body.mondayAvailabilityEndTime,
+          monday_break_start_time: req.body.mondayBreakStartTime,
+          monday_break_end_time: req.body.mondayBreakEndTime,
+          tuesday_availability_start_time: req.body.tuesdayAvailabilityStartTime,
+          tuesday_availability_end_time: req.body.tuesdayAvailabilityEndTime,
+          tuesday_break_start_time: req.body.tuesdayBreakStartTime,
+          tuesday_break_end_time: req.body.tuesdayBreakEndTime,
+          wednesday_availability_start_time: req.body.wednesdayAvailabilityStartTime,
+          wednesday_availability_end_time: req.body.wednesdayAvailabilityEndTime,
+          wednesday_break_start_time: req.body.wednesdayBreakStartTime,
+          wednesday_break_end_time: req.body.wednesdayBreakEndTime,
+          thursday_availability_start_time: req.body.thursdayAvailabilityStartTime,
+          thursday_availability_end_time: req.body.thursdayAvailabilityEndTime,
+          thursday_break_start_time: req.body.thursdayBreakStartTime,
+          thursday_break_end_time: req.body.thursdayBreakEndTime,
+          friday_availability_start_time: req.body.fridayAvailabilityStartTime,
+          friday_availability_end_time: req.body.fridayAvailabilityEndTime,
+          friday_break_start_time: req.body.fridayBreakStartTime,
+          friday_break_end_time: req.body.fridayBreakEndTime,
+          saturday_availability_start_time: req.body.saturdayAvailabilityStartTime,
+          saturday_availability_end_time: req.body.saturdayAvailabilityEndTime,
+          saturday_break_start_time: req.body.saturdayBreakStartTime,
+          saturday_break_end_time: req.body.saturdayBreakEndTime
+        };
+
+        if (foundSchedule) {
+          await Database.Schedule.update(newSchedule, { where: { id: foundSchedule.id } });
+        } else {
+          await Database.Schedule.create(newSchedule);
+        }
+
+        var foundDoctor = await Database.Doctor
+        .findOne({
+          where: { id: doctorId },
+          attributes: DatabaseAttributes.DOCTOR,
+          include: [
+            {
+              model: Database.Image,
+              attributes: DatabaseAttributes.IMAGE
+            },
+            { 
+              model: Database.Practice,
+              attributes: DatabaseAttributes.PRACTICE
+            },
+            { 
+              model: Database.Schedule,
+              attributes: DatabaseAttributes.SCHEDULE
+            }
+          ]
+        });
+        
+        /* TODO: doctor updated schedule
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, doctor: foundDoctor });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 router.get('/search', async function(req, res, next) {
   var response = { isSuccess: true }
 
