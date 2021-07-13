@@ -3,20 +3,17 @@ var router = express.Router();
 var Database = require('../helpers/database');
 
 router.post('/webhook', async function(req, res, next) {
-  let event = req.body;
-  let session = event && event.data && event.data.object;
+  const event = req.body;
+  const session = event && event.data && event.data.object;
   console.info("Got Stripe event: " + JSON.stringify(event));
   
   switch (event && event.type) {
-    case 'checkout.session.completed':
-    case 'checkout.session.async_payment_succeeded':
     case 'invoice.payment_succeeded': {
-      updateDoctor(session);
+      await updateDoctor(session);
       break;
     }
-    case 'checkout.session.async_payment_failed':
     case 'invoice.payment_failed': {
-      updateDoctor(session);
+      await updateDoctor(session);
       break;
     }
     default:
@@ -30,17 +27,22 @@ const updateDoctor = async (session) => {
   console.log("Updating doctor Stripe details: ", session);
   if (!session) return;
 
-  let customerId = session.customer;
-  let clientReferenceId = session.client_reference_id;
-  let subscriptionStatus = session.subscription && session.subscription.status;
+  const customerId = session.customer;
+  const customerEmail = session.customer_email;
+  const subscriptionId = session.subscription;
 
-  let doctor = await Database.Appointment.findOne({ where: { id: clientReferenceId } })
-    .catch(error => console.error('Error finding doctor from Stripe client reference ID: ' + error.message));
+  let doctor = await Database.Doctor.findOne({ where: { email_address: customerEmail } })
+    .catch(error => console.error('Error finding doctor from Stripe customer email (' + customerEmail + '): ' + error.message));
   if (!doctor) return;
 
+  const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    .catch(error => console.error('Error finding Stripe subscription with ID (' + subscriptionId + '): ' + error.message));
+  if (!subscription) return;
+
   doctor.stripe_customer_id = customerId;
-  doctor.stripe_plan_id = 
-  doctor.stripe_subscription_status = subscriptionStatus;
+  doctor.stripe_plan_id = session.lines && session.lines.data && session.lines.data[0] && session.lines.data[0].plan && session.lines.data[0].plan.id;
+  doctor.stripe_subscription_status = subscription.status;
+  await doctor.save();
 }
 
 module.exports = router;
