@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 var Database = require('../helpers/database');
 
 router.post('/webhook', async function(req, res, next) {
