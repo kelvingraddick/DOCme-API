@@ -34,7 +34,10 @@ const DatabaseAttributes = {
     'gender',
     'race',
     ['birth_date', 'birthDate'],
-    ['npi_number', 'npiNumber']
+    ['npi_number', 'npiNumber'],
+    ['stripe_customer_id', 'stripeCustomerId'],
+    ['stripe_plan_id', 'stripePlanId'],
+    ['stripe_subscription_status', 'stripeSubscriptionStatus']
   ],
   PRACTICE: [
     'id',

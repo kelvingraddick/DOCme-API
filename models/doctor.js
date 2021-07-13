@@ -60,6 +60,18 @@ module.exports = (database) => {
       npi_number: {
         type: Sequelize.STRING,
         allowNull: true
+      },
+      stripe_customer_id: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      stripe_plan_id: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      stripe_subscription_status: {
+        type: Sequelize.STRING,
+        allowNull: true
       }
     }, {
       timestamps: false,
