@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+var Sequelize = require('sequelize');
 var Database = require('../helpers/database');
 
 router.post('/webhook', async function(req, res, next) {
@@ -9,11 +10,9 @@ router.post('/webhook', async function(req, res, next) {
   console.info("Got Stripe event: " + JSON.stringify(event));
   
   switch (event && event.type) {
-    case 'invoice.payment_succeeded': {
-      await updateDoctor(session);
-      break;
-    }
-    case 'invoice.payment_failed': {
+    case 'invoice.payment_succeeded':
+    case 'invoice.payment_failed':
+    case 'invoice.paid' : {
       await updateDoctor(session);
       break;
     }
@@ -32,7 +31,7 @@ const updateDoctor = async (session) => {
   const customerEmail = session.customer_email;
   const subscriptionId = session.subscription;
 
-  let doctor = await Database.Doctor.findOne({ where: { email_address: customerEmail } })
+  let doctor = await Database.Doctor.findOne({ where: { [Sequelize.Op.or]: [{ stripe_customer_id: customerId }, { email_address: customerEmail }] }})
     .catch(error => console.error('Error finding doctor from Stripe customer email (' + customerEmail + '): ' + error.message));
   if (!doctor) return;
 
