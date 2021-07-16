@@ -10,6 +10,7 @@ router.post('/webhook', async function(req, res, next) {
   console.info("Got Stripe event: " + JSON.stringify(event));
   
   switch (event && event.type) {
+    case 'checkout.session.completed':
     case 'invoice.payment_succeeded':
     case 'invoice.payment_failed':
     case 'invoice.paid' : {
@@ -27,21 +28,21 @@ const updateDoctor = async (session) => {
   console.log("Updating doctor Stripe details: ", session);
   if (!session) return;
 
+  const clientReferenceId = session.client_reference_id;
   const customerId = session.customer;
   const customerEmail = session.customer_email;
   const subscriptionId = session.subscription;
 
-  let doctor = await Database.Doctor.findOne({ where: { [Sequelize.Op.or]: [{ stripe_customer_id: customerId }, { email_address: customerEmail }] }})
+  let doctor = await Database.Doctor.findOne({ where: { [Sequelize.Op.or]: [{ id: clientReferenceId }, { stripe_customer_id: customerId }, { email_address: customerEmail }] }})
     .catch(error => console.error('Error finding doctor from Stripe customer email (' + customerEmail + '): ' + error.message));
   if (!doctor) return;
 
   const subscription = await stripe.subscriptions.retrieve(subscriptionId)
     .catch(error => console.error('Error finding Stripe subscription with ID (' + subscriptionId + '): ' + error.message));
-  if (!subscription) return;
 
-  doctor.stripe_customer_id = customerId;
-  doctor.stripe_plan_id = session.lines && session.lines.data && session.lines.data[0] && session.lines.data[0].plan && session.lines.data[0].plan.id;
-  doctor.stripe_subscription_status = subscription.status;
+  doctor.stripe_customer_id = customerId || doctor.stripe_customer_id;
+  doctor.stripe_plan_id = (session.lines && session.lines.data && session.lines.data[0] && session.lines.data[0].plan && session.lines.data[0].plan.id) || doctor.stripe_plan_id;
+  doctor.stripe_subscription_status = (subscription && subscription.status) || doctor.stripe_subscription_status;
   await doctor.save();
 }
 
