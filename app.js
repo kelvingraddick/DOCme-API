@@ -12,6 +12,7 @@ var specialtyRouter = require('./routes/specialty');
 var insuranceRouter = require('./routes/insurance.js');
 var appointmentRouter = require('./routes/appointment.js');
 var stripeRouter = require('./routes/stripe.js');
+var oneSignalRouter = require('./routes/onesignal.js');
 
 var app = express();
 
@@ -33,6 +34,7 @@ app.use('/specialty', specialtyRouter);
 app.use('/insurance', insuranceRouter);
 app.use('/appointment', appointmentRouter);
 app.use('/stripe', stripeRouter);
+app.use('/onesignal', oneSignalRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
