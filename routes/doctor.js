@@ -50,6 +50,10 @@ router.post('/register', async function(req, res, next) {
               { 
                 model: Database.Schedule,
                 attributes: DatabaseAttributes.SCHEDULE
+              },
+              { 
+                model: Database.Specialty,
+                attributes: DatabaseAttributes.SPECIALTY
               }
             ]
           });
@@ -104,6 +108,10 @@ router.post('/:doctorId/update', authorize, async function(req, res, next) {
               { 
                 model: Database.Schedule,
                 attributes: DatabaseAttributes.SCHEDULE
+              },
+              { 
+                model: Database.Specialty,
+                attributes: DatabaseAttributes.SPECIALTY
               }
             ]
           });
@@ -153,6 +161,10 @@ router.post('/:doctorId/update/password', authorize, async function(req, res, ne
               { 
                 model: Database.Schedule,
                 attributes: DatabaseAttributes.SCHEDULE
+              },
+              { 
+                model: Database.Specialty,
+                attributes: DatabaseAttributes.SPECIALTY
               }
             ]
           });
@@ -223,6 +235,10 @@ router.post('/:doctorId/update/practice', authorize, async function(req, res, ne
             { 
               model: Database.Schedule,
               attributes: DatabaseAttributes.SCHEDULE
+            },
+            { 
+              model: Database.Specialty,
+              attributes: DatabaseAttributes.SPECIALTY
             }
           ]
         });
@@ -303,11 +319,68 @@ router.post('/:doctorId/update/schedule', authorize, async function(req, res, ne
             { 
               model: Database.Schedule,
               attributes: DatabaseAttributes.SCHEDULE
+            },
+            { 
+              model: Database.Specialty,
+              attributes: DatabaseAttributes.SPECIALTY
             }
           ]
         });
         
         /* TODO: doctor updated schedule
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true, doctor: foundDoctor });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
+router.post('/:doctorId/update/specialties', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+
+    Database.DoctorSpecialty
+      .destroy({ where: { doctor_id: doctorId } })
+      .then(async function(affectedRows) {
+        
+        var specialtyIds = req.body.specialtyIds;
+        var specialties = specialtyIds.map((specialtyId) => { return { doctor_id: doctorId, specialty_id: specialtyId }; });
+
+        await Database.DoctorSpecialty.bulkCreate(specialties);
+
+        var foundDoctor = await Database.Doctor
+        .findOne({
+          where: { id: doctorId },
+          attributes: DatabaseAttributes.DOCTOR,
+          include: [
+            {
+              model: Database.Image,
+              attributes: DatabaseAttributes.IMAGE
+            },
+            { 
+              model: Database.Practice,
+              attributes: DatabaseAttributes.PRACTICE
+            },
+            { 
+              model: Database.Schedule,
+              attributes: DatabaseAttributes.SCHEDULE
+            },
+            { 
+              model: Database.Specialty,
+              attributes: DatabaseAttributes.SPECIALTY
+            }
+          ]
+        });
+        
+        /* TODO: doctor changed email
         await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
           .then(() => {}, error => console.error('Email error: ' + error.message))
           .catch(error => console.error('Email error: ' + error.message));
@@ -359,12 +432,7 @@ router.get('/:id', async function(req, res, next) {
     include: [
       {
         model: Database.Image,
-        attributes: [
-          'id',
-          ['doctor_id', 'doctorId'],
-          'url',
-          'description'
-        ]
+        attributes: DatabaseAttributes.IMAGE
       },
       { 
         model: Database.Practice,
@@ -372,38 +440,11 @@ router.get('/:id', async function(req, res, next) {
       },
       { 
         model: Database.Schedule,
-        attributes: [
-          'id',
-          ['doctor_id', 'doctorId'],
-          ['sunday_availability_start_time', 'sundayAvailabilityStartTime'],
-          ['sunday_availability_end_time', 'sundayAvailabilityEndTime'],
-          ['sunday_break_start_time', 'sundayBreakStartTime'],
-          ['sunday_break_end_time', 'sundayBreakEndTime'],
-          ['monday_availability_start_time', 'mondayAvailabilityStartTime'],
-          ['monday_availability_end_time', 'mondayAvailabilityEndTime'],
-          ['monday_break_start_time', 'mondayBreakStartTime'],
-          ['monday_break_end_time', 'mondayBreakEndTime'],
-          ['tuesday_availability_start_time', 'tuesdayAvailabilityStartTime'],
-          ['tuesday_availability_end_time', 'tuesdayAvailabilityEndTime'],
-          ['tuesday_break_start_time', 'tuesdayBreakStartTime'],
-          ['tuesday_break_end_time', 'tuesdayBreakEndTime'],
-          ['wednesday_availability_start_time', 'wednesdayAvailabilityStartTime'],
-          ['wednesday_availability_end_time', 'wednesdayAvailabilityEndTime'],
-          ['wednesday_break_start_time', 'wednesdayBreakStartTime'],
-          ['wednesday_break_end_time', 'wednesdayBreakEndTime'],
-          ['thursday_availability_start_time', 'thursdayAvailabilityStartTime'],
-          ['thursday_availability_end_time', 'thursdayAvailabilityEndTime'],
-          ['thursday_break_start_time', 'thursdayBreakStartTime'],
-          ['thursday_break_end_time', 'thursdayBreakEndTime'],
-          ['friday_availability_start_time', 'fridayAvailabilityStartTime'],
-          ['friday_availability_end_time', 'fridayAvailabilityEndTime'],
-          ['friday_break_start_time', 'fridayBreakStartTime'],
-          ['friday_break_end_time', 'fridayBreakEndTime'],
-          ['saturday_availability_start_time', 'saturdayAvailabilityStartTime'],
-          ['saturday_availability_end_time', 'saturdayAvailabilityEndTime'],
-          ['saturday_break_start_time', 'saturdayBreakStartTime'],
-          ['saturday_break_end_time', 'saturdayBreakEndTime']
-        ]
+        attributes: DatabaseAttributes.SCHEDULE
+      },
+      { 
+        model: Database.Specialty,
+        attributes: DatabaseAttributes.SPECIALTY
       }
     ],
     where: {

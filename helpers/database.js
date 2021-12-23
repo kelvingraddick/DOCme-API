@@ -9,6 +9,7 @@ const Database = new Sequelize(process.env.DATABASE_NAME, process.env.DATABASE_U
 
 Database.Patient = require('../models/patient')(Database);
 Database.Doctor = require('../models/doctor')(Database);
+Database.DoctorSpecialty = require('../models/doctor-specialty')(Database);
 Database.Image = require('../models/image')(Database);
 Database.Practice = require('../models/practice')(Database);
 Database.Specialty = require('../models/specialty')(Database);
@@ -23,6 +24,9 @@ Database.Practice.hasMany(Database.Doctor, { foreignKey: 'practice_id' });
 
 Database.Schedule.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
 Database.Doctor.hasOne(Database.Schedule, { foreignKey: 'doctor_id' });
+
+Database.Doctor.belongsToMany(Database.Specialty, { through: 'doctor_specialties' });
+Database.Specialty.belongsToMany(Database.Doctor, { through: 'doctor_specialties' });
 
 Database.Appointment.belongsTo(Database.Patient, { foreignKey: 'patient_id' });
 Database.Patient.hasMany(Database.Appointment, { foreignKey: 'patient_id' });

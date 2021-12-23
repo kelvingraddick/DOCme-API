@@ -63,6 +63,10 @@ const DatabaseAttributes = {
     'url',
     'description'
   ],
+  SPECIALTY: [
+    'id',
+    'name'
+  ],
   SCHEDULE: [
     'id',
     ['doctor_id', 'doctorId'],
