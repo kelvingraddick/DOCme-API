@@ -4,6 +4,7 @@ var authenticate = require('../middleware/authenticate');
 var authorize = require('../middleware/authorize');
 var jwt = require('jsonwebtoken');
 var Database = require('../helpers/database');
+var Sequelize = require('sequelize');
 var Email = require('../helpers/email/email');
 var UserType = require('../constants/user-type');
 var ErrorType = require('../constants/error-type');
@@ -395,31 +396,77 @@ router.post('/:doctorId/update/specialties', authorize, async function(req, res,
 });
 
 router.get('/search', async function(req, res, next) {
-  var response = { isSuccess: true }
+  var doctorWhereClause = { is_approved: 1 };
+  var practiceWhereClause = {};
+  var practiceRequired = false;
+  var scheduleWhereClause = {};
+  var specialtyWhereClause = {};
+  var specialtyRequired = false;
+  
+  if (req.query.query) {
+    doctorWhereClause[Sequelize.Op.or] = doctorWhereClause[Sequelize.Op.or] || [];
+    doctorWhereClause[Sequelize.Op.or].push(
+      { first_name: { [Sequelize.Op.substring]: req.query.query } },
+      { last_name: { [Sequelize.Op.substring]: req.query.query } },
+      { description: { [Sequelize.Op.substring]: req.query.query } }
+    );
+    practiceWhereClause[Sequelize.Op.or] = practiceWhereClause[Sequelize.Op.or] || [];
+    practiceWhereClause[Sequelize.Op.or].push(
+      { name: { [Sequelize.Op.substring]: req.query.query } },
+      { description: { [Sequelize.Op.substring]: req.query.query } }
+    );
+  }
 
-	var specialtyId = req.params.specialtyId;
-	var location = req.params.location;
-	var date = req.params.date;
-	var insuranceCarrierId = req.params.insuranceCarrierId;
-	var insurancePlanId = req.params.insurancePlanId;
+  if (req.query.specialtyId) {
+    specialtyWhereClause = {
+      id: req.query.specialtyId
+    };
+    specialtyRequired = true;
+  }
 
-  response.doctors = await Database.Doctor.findAll({
-    attributes: DatabaseAttributes.DOCTOR,
-    include: [
-      { 
-        model: Database.Practice,
-        attributes: DatabaseAttributes.PRACTICE
-      }
-    ],
-    where: {
-			is_approved: true
-    }
-  }).catch((error) => {
-    response.isSuccess = false;
-    response.errorMessage = error.message;
-  });
+  if (req.query.postalCode) {
+    practiceWhereClause = {
+      postal_code: req.query.postalCode
+    };
+    practiceRequired = true;
+  }
 
-  res.json(response);
+  Database.Doctor
+    .findAll({
+      where: doctorWhereClause,
+      attributes: DatabaseAttributes.DOCTOR,
+      include: [
+        {
+          model: Database.Image,
+          attributes: DatabaseAttributes.IMAGE,
+          required: false
+        },
+        { 
+          model: Database.Practice,
+          attributes: DatabaseAttributes.PRACTICE,
+          where: practiceWhereClause,
+          required: practiceRequired
+        },
+        { 
+          model: Database.Schedule,
+          attributes: DatabaseAttributes.SCHEDULE,
+          where: scheduleWhereClause,
+          required: false
+        },
+        { 
+          model: Database.Specialty,
+          attributes: DatabaseAttributes.SPECIALTY,
+          where: specialtyWhereClause,
+          required: specialtyRequired
+        }
+      ]
+    })
+    .then(async doctors => {
+      res.json({ isSuccess: true, count: doctors.length, doctors: doctors });
+    })
+    .catch(error => { 
+      res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+    });
 });
 
 router.get('/:id', async function(req, res, next) {
