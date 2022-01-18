@@ -415,9 +415,9 @@ router.post('/:doctorId/cancel/subscription', authorize, async function(req, res
           
           const deleted = await stripe.subscriptions.del(subscription.id);
 
-          req.doctor.stripe_customer_id = null;
-          req.doctor.stripe_plan_id = null;
-          req.doctor.stripe_subscription_status = null;
+          req.doctor.stripeCustomerId = null;
+          req.doctor.stripePlanId = null;
+          req.doctor.stripeSubscriptionStatus = null;
           await req.doctor.save();
 
           /* TODO: doctor changed email
