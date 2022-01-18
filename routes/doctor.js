@@ -415,10 +415,34 @@ router.post('/:doctorId/cancel/subscription', authorize, async function(req, res
           
           const deleted = await stripe.subscriptions.del(subscription.id);
 
-          req.doctor.stripeCustomerId = null;
-          req.doctor.stripePlanId = null;
-          req.doctor.stripeSubscriptionStatus = null;
+          req.doctor.stripe_customer_id = null;
+          req.doctor.stripe_plan_id = null;
+          req.doctor.stripe_subscription_status = null;
           await req.doctor.save();
+
+          var foundDoctor = await Database.Doctor
+          .findOne({
+            where: { id: doctorId },
+            attributes: DatabaseAttributes.DOCTOR,
+            include: [
+              {
+                model: Database.Image,
+                attributes: DatabaseAttributes.IMAGE
+              },
+              { 
+                model: Database.Practice,
+                attributes: DatabaseAttributes.PRACTICE
+              },
+              { 
+                model: Database.Schedule,
+                attributes: DatabaseAttributes.SCHEDULE
+              },
+              { 
+                model: Database.Specialty,
+                attributes: DatabaseAttributes.SPECIALTY
+              }
+            ]
+          });
 
           /* TODO: doctor changed email
           await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
@@ -426,7 +450,7 @@ router.post('/:doctorId/cancel/subscription', authorize, async function(req, res
             .catch(error => console.error('Email error: ' + error.message));
           */
 
-          res.json({ isSuccess: true, doctor: req.doctor });
+          res.json({ isSuccess: true, doctor: foundDoctor });
         }
       }
     } catch (error) { 
