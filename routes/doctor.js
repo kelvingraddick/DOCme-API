@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 var authenticate = require('../middleware/authenticate');
 var authorize = require('../middleware/authorize');
 var jwt = require('jsonwebtoken');
@@ -392,6 +393,45 @@ router.post('/:doctorId/update/specialties', authorize, async function(req, res,
       .catch(error => { 
         res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
       });
+  }
+});
+
+router.post('/:doctorId/cancel/subscription', authorize, async function(req, res, next) {
+  var doctorId = req.params.doctorId;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    try {
+
+      const customer = await stripe.customers.retrieve(req.doctor.toJSON().stripeCustomerId, { expand: ['subscriptions']});
+      if (!customer) {
+        res.json({ isSuccess: false, errorCode: ErrorType.NO_DATA_FOUND, errorMessage: 'Stripe customer not found.' });
+      } else {
+
+        const subscription = customer.subscriptions.data[0];
+        if (!subscription) {
+          res.json({ isSuccess: false, errorCode: ErrorType.NO_DATA_FOUND, errorMessage: 'Stripe subscription not found.' });
+        } else {
+          
+          const deleted = await stripe.subscriptions.del(subscription.id);
+
+          req.doctor.stripe_customer_id = null;
+          req.doctor.stripe_plan_id = null;
+          req.doctor.stripe_subscription_status = null;
+          await req.doctor.save();
+
+          /* TODO: doctor changed email
+          await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+            .then(() => {}, error => console.error('Email error: ' + error.message))
+            .catch(error => console.error('Email error: ' + error.message));
+          */
+
+          res.json({ isSuccess: true, doctor: req.doctor });
+        }
+      }
+    } catch (error) { 
+      res.json({ isSuccess: false, errorCode: ErrorType.SERVER_PROBLEM, errorMessage: error.message });
+    }
   }
 });
 
