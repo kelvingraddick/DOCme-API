@@ -130,4 +130,29 @@ router.post('/:patientId/update/password', authorize, async function(req, res, n
   }
 });
 
+router.delete('/:id', authorize, async function(req, res, next) {
+  var patientId = req.params.id;
+  if (patientId != req.patient.id) {
+    res.sendStatus(403);
+  } else {
+    var emailAddress = req.patient.emailAddress;
+
+    Database.Patient
+      .destroy({ where: { id: patientId } })
+      .then(async affectedRows => {     
+           
+        /* TODO: patient deleted email
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 module.exports = router;

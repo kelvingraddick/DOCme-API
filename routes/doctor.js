@@ -571,4 +571,29 @@ router.get('/:id', async function(req, res, next) {
   res.json(response);
 });
 
+router.delete('/:id', authorize, async function(req, res, next) {
+  var doctorId = req.params.id;
+  if (doctorId != req.doctor.id) {
+    res.sendStatus(403);
+  } else {
+    var emailAddress = req.doctor.emailAddress;
+
+    Database.Doctor
+      .destroy({ where: { id: doctorId } })
+      .then(async affectedRows => {     
+
+        /* TODO: doctor deleted email
+        await Email.send(foundDoctor.get().emailAddress, 'Welcome to DOCme ' + foundDoctor.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_DOCTOR)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  }
+});
+
 module.exports = router;
