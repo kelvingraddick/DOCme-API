@@ -15,6 +15,7 @@ Database.Practice = require('../models/practice')(Database);
 Database.Specialty = require('../models/specialty')(Database);
 Database.Schedule = require('../models/schedule')(Database);
 Database.Appointment = require('../models/appointment')(Database);
+Database.Rating = require('../models/rating')(Database);
 
 Database.Image.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
 Database.Doctor.hasMany(Database.Image, { foreignKey: 'doctor_id' });
@@ -36,5 +37,11 @@ Database.Doctor.hasMany(Database.Appointment, { foreignKey: 'doctor_id' });
 
 Database.Appointment.belongsTo(Database.Specialty, { foreignKey: 'specialty_id' });
 Database.Specialty.hasMany(Database.Appointment, { foreignKey: 'specialty_id' });
+
+Database.Rating.belongsTo(Database.Doctor, { foreignKey: 'doctor_id' });
+Database.Doctor.hasMany(Database.Rating, { foreignKey: 'doctor_id' });
+
+Database.Rating.belongsTo(Database.Patient, { foreignKey: 'patient_id' });
+Database.Patient.hasMany(Database.Rating, { foreignKey: 'patient_id' });
 
 module.exports = Database;

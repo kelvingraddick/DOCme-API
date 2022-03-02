@@ -61,6 +61,14 @@ module.exports = (database) => {
         type: Sequelize.STRING,
         allowNull: true
       },
+      average_rating: {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
+      number_of_ratings: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
       stripe_customer_id: {
         type: Sequelize.STRING,
         allowNull: true

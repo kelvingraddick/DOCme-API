@@ -12,6 +12,7 @@ var practiceRouter = require('./routes/practice');
 var specialtyRouter = require('./routes/specialty');
 var insuranceRouter = require('./routes/insurance.js');
 var appointmentRouter = require('./routes/appointment.js');
+var ratingRouter = require('./routes/rating.js');
 var stripeRouter = require('./routes/stripe.js');
 var oneSignalRouter = require('./routes/onesignal.js');
 
@@ -35,6 +36,7 @@ app.use('/practice', practiceRouter);
 app.use('/specialty', specialtyRouter);
 app.use('/insurance', insuranceRouter);
 app.use('/appointment', appointmentRouter);
+app.use('/rating', ratingRouter);
 app.use('/stripe', stripeRouter);
 app.use('/onesignal', oneSignalRouter);
 

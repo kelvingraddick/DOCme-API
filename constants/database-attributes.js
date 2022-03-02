@@ -35,6 +35,8 @@ const DatabaseAttributes = {
     'race',
     ['birth_date', 'birthDate'],
     ['npi_number', 'npiNumber'],
+    ['average_rating', 'averageRating'],
+    ['number_of_ratings', 'numberOfRatings'],
     ['stripe_customer_id', 'stripeCustomerId'],
     ['stripe_plan_id', 'stripePlanId'],
     ['stripe_subscription_status', 'stripeSubscriptionStatus']
@@ -106,6 +108,14 @@ const DatabaseAttributes = {
     ['specialty_id', 'specialtyId'],
     'timestamp',
     ['is_new_patient', 'isNewPatient'],
+    'notes'
+  ],
+  RATING: [
+    'id',
+    ['patient_id', 'patientId'],
+    ['doctor_id', 'doctorId'],
+    'timestamp',
+    'value',
     'notes'
   ]
 }
