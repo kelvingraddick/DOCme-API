@@ -81,7 +81,7 @@ router.post('/upsert', authorize, async function(req, res, next) {
   }
 });
 
-router.get('/patient/:patientId/list/', authorize, async function(req, res, next) {
+router.get('/patient/:patientId/list/', async function(req, res, next) {
   var response = { isSuccess: true }
 
 	var patientId = req.params.patientId;
@@ -109,7 +109,7 @@ router.get('/patient/:patientId/list/', authorize, async function(req, res, next
   res.json(response);
 });
 
-router.get('/doctor/:doctorId/list/', authorize, async function(req, res, next) {
+router.get('/doctor/:doctorId/list/', async function(req, res, next) {
   var response = { isSuccess: true }
 
 	var doctorId = req.params.doctorId;
