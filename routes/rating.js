@@ -81,4 +81,60 @@ router.post('/upsert', authorize, async function(req, res, next) {
   }
 });
 
+router.get('/patient/:patientId/list/', authorize, async function(req, res, next) {
+  var response = { isSuccess: true }
+
+	var patientId = req.params.patientId;
+
+  response.ratings = await Database.Rating.findAll({
+    attributes: DatabaseAttributes.RATING,
+    include: [
+      {
+        model: Database.Doctor,
+        attributes: DatabaseAttributes.DOCTOR
+      },
+      { 
+        model: Database.Patient,
+        attributes: DatabaseAttributes.PATIENT
+      }
+    ],
+    where: {
+			patient_id: patientId
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
+
+router.get('/doctor/:doctorId/list/', authorize, async function(req, res, next) {
+  var response = { isSuccess: true }
+
+	var doctorId = req.params.doctorId;
+
+  response.ratings = await Database.Rating.findAll({
+    attributes: DatabaseAttributes.RATING,
+    include: [
+      {
+        model: Database.Doctor,
+        attributes: DatabaseAttributes.DOCTOR
+      },
+      { 
+        model: Database.Patient,
+        attributes: DatabaseAttributes.PATIENT
+      }
+    ],
+    where: {
+			doctor_id: doctorId
+    }
+  }).catch((error) => {
+    response.isSuccess = false;
+    response.errorMessage = error.message;
+  });
+
+  res.json(response);
+});
+
 module.exports = router;
