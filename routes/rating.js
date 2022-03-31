@@ -63,7 +63,8 @@ router.post('/upsert', authorize, async function(req, res, next) {
         var foundDoctor = await Database.Doctor.findOne({ where: { id: doctorId }});
         if (foundDoctor) {
           foundDoctor.average_rating = req.body.value;
-          foundDoctor.number_of_ratings = foundDoctor.number_of_ratings + 1; 
+          var foundRatings = await Database.Rating.findAll({ where: { doctor_id: doctorId }});
+          foundDoctor.number_of_ratings = foundRatings.length; 
           await foundDoctor.save();
         }
         
