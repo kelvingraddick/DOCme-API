@@ -80,6 +80,14 @@ module.exports = (database) => {
       stripe_subscription_status: {
         type: Sequelize.STRING,
         allowNull: true
+      },
+      reset_password_code: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      reset_password_timestamp: {
+        type: Sequelize.DATE,
+        allowNull: true
       }
     }, {
       timestamps: false,

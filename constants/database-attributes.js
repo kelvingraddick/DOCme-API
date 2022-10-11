@@ -19,7 +19,9 @@ const DatabaseAttributes = {
     'longitude',
     ['image_url', 'imageUrl'],
     ['insurance_provider_id', 'insuranceProviderId'],
-    ['insurance_plan_id', 'insurancePlanId']
+    ['insurance_plan_id', 'insurancePlanId'],
+    ['reset_password_code', 'resetPasswordCode'],
+    ['reset_password_timestamp', 'resetPasswordTimestamp']
   ],
   DOCTOR: [
     'id',
@@ -39,7 +41,9 @@ const DatabaseAttributes = {
     ['number_of_ratings', 'numberOfRatings'],
     ['stripe_customer_id', 'stripeCustomerId'],
     ['stripe_plan_id', 'stripePlanId'],
-    ['stripe_subscription_status', 'stripeSubscriptionStatus']
+    ['stripe_subscription_status', 'stripeSubscriptionStatus'],
+    ['reset_password_code', 'resetPasswordCode'],
+    ['reset_password_timestamp', 'resetPasswordTimestamp']
   ],
   PRACTICE: [
     'id',

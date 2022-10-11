@@ -18,7 +18,7 @@ router.get('/', function(req, res, next) {
 
 /* Test email. */
 router.post('/test/email', async function(req, res, next) {
-  await Email.send('kelvingraddick@gmail.com', 'Welcome to DOCme!', 'Thank you for joining DOCme', Email.templates.WELCOME)
+  await Email.send('kgraddick@wavelinkllc.com', 'Welcome to DOCme!', 'Thank you for joining DOCme', Email.templates.WELCOME_PATIENT)
     .then(
       () => res.json({ isSuccess: true }),
       error => res.json({ isSuccess: false, message: error.message })

@@ -6,6 +6,7 @@ var authorize = require('../middleware/authorize');
 var jwt = require('jsonwebtoken');
 var Database = require('../helpers/database');
 var Sequelize = require('sequelize');
+var Crypto = require('crypto')
 var Email = require('../helpers/email/email');
 var UserType = require('../constants/user-type');
 var ErrorType = require('../constants/error-type');
@@ -182,6 +183,45 @@ router.post('/:doctorId/update/password', authorize, async function(req, res, ne
       .catch(error => { 
         res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
       });
+  }
+});
+
+router.post('/reset/password/request', async function(req, res, next) {
+  var doctor = await Database.Doctor.findOne({ where: { email_address: req.body.emailAddress } });
+  if (doctor) {
+    var updatedDoctor = {
+      reset_password_code: Crypto.randomUUID(),
+      reset_password_timestamp: Sequelize.literal('CURRENT_TIMESTAMP')
+    };
+    Database.Doctor.update(updatedDoctor, { where: { id: doctor.id } })
+      .then(async numberUpdated => {
+        console.info('Number of doctors updated: ' + numberUpdated);
+
+        var foundDoctor = await Database.Doctor
+          .findOne({
+            where: { id: doctor.id },
+            attributes: DatabaseAttributes.DOCTOR
+          });
+        
+        await Email.send(
+          foundDoctor.get().emailAddress,
+          'Your reset password request for DOCme!',
+          'A password reset was request for an account with this email address on DOCme',
+          Email.templates.RESET_PASSWORD_REQUEST,
+          {
+            reset_password_expiration_minutes: 10,
+            reset_password_link: 'http://app.docmeapp.com' + '/reset/password/' + foundDoctor.get().resetPasswordCode
+          })
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+
+        res.json({ isSuccess: true });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
+  } else {
+    res.json({ isSuccess: true, message: 'REMOVE THIS; did not find account' });
   }
 });
 
