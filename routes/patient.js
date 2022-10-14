@@ -155,7 +155,7 @@ router.post('/reset/password/request', async function(req, res, next) {
           Email.templates.RESET_PASSWORD_REQUEST,
           {
             reset_password_expiration_minutes: 10,
-            reset_password_link: 'http://app.docmeapp.com' + '/reset/password/' + foundPatient.get().resetPasswordCode
+            reset_password_link: 'http://app.docmeapp.com/resetpassword/?code=' + foundPatient.get().resetPasswordCode
           })
           .then(() => {}, error => console.error('Email error: ' + error.message))
           .catch(error => console.error('Email error: ' + error.message));
