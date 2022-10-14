@@ -166,7 +166,48 @@ router.post('/reset/password/request', async function(req, res, next) {
         res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
       });
   } else {
-    res.json({ isSuccess: true, message: 'REMOVE THIS; did not find account' });
+    res.json({ isSuccess: true });
+  }
+});
+
+router.post('/update/password/:code', async function(req, res, next) {
+  var code = req.params.code;
+  var patient = await Database.Patient.findOne({ where: { reset_password_code: code } });
+  if (!patient) {
+    res.status(403).send('Password reset code is invalid.');
+  } else if (
+    !patient.reset_password_timestamp ||
+    (new Date() - patient.reset_password_timestamp) > 600000) { // 10 minutes
+    res.status(403).send('Password reset request timed-out.');
+  } else {
+    var updatedPatient = {
+      password: req.body.newPassword,
+      reset_password_code: null,
+      reset_password_timestamp: null
+    };
+    Database.Patient.update(updatedPatient, { where: { id: patient.id } })
+      .then(async numberUpdated => {
+        console.info('Number of patients updated: ' + numberUpdated);
+
+        /*
+        var foundPatient = await Database.Patient
+          .findOne({
+            where: { id: patient.id },
+            attributes: DatabaseAttributes.PATIENT
+          });
+        */
+        
+        /* TODO: patient password changed email
+        await Email.send(foundPatient.get().emailAddress, 'Welcome to DOCme ' + foundPatient.get().firstName + '!', 'Thank you for joining the DOCme platform', Email.templates.WELCOME_PATIENT)
+          .then(() => {}, error => console.error('Email error: ' + error.message))
+          .catch(error => console.error('Email error: ' + error.message));
+        */
+
+        res.json({ isSuccess: true });
+      })
+      .catch(error => { 
+        res.json({ isSuccess: false, errorCode: ErrorType.DATABASE_PROBLEM, errorMessage: error.message });
+      });
   }
 });
 
