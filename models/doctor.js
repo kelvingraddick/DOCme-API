@@ -67,7 +67,7 @@ module.exports = (database) => {
       },
       number_of_ratings: {
         type: Sequelize.INTEGER,
-        allowNull: false
+        allowNull: true
       },
       stripe_customer_id: {
         type: Sequelize.STRING,
