@@ -216,7 +216,8 @@ router.delete('/:id', authorize, async function(req, res, next) {
   if (patientId != req.patient.id) {
     res.sendStatus(403);
   } else {
-    var emailAddress = req.patient.emailAddress;
+    var patient = req.patient.toJSON();
+    var emailAddress = patient.emailAddress;
 
     Database.Patient
       .destroy({ where: { id: patientId } })
