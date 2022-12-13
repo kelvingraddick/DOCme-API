@@ -13,28 +13,7 @@ async function authorize(req, res, next) {
         req.patient = await Database.Patient
           .findOne({
             where: { id: decodedToken.sub },
-            attributes: [
-              'id',
-              ['is_active', 'isActive'],
-              ['first_name', 'firstName'],
-              ['last_name', 'lastName'],
-              ['email_address', 'emailAddress'],
-              ['phone_number', 'phoneNumber'],
-              'gender',
-              'race',
-              ['birth_date', 'birthDate'],
-              ['address_line_1', 'addressLine1'],
-              ['address_line_2', 'addressLine2'],
-              'city',
-              'state',
-              ['postal_code', 'postalCode'],
-              ['country_code', 'countryCode'],
-              'latitude',
-              'longitude',
-              ['image_url', 'imageUrl'],
-              ['insurance_provider_id', 'insuranceProviderId'],
-              ['insurance_plan_id', 'insurancePlanId']
-            ]
+            attributes: DatabaseAttributes.PATIENT
           })
           .catch((err) => { console.error(err.message); return res.sendStatus(500); });
         if (req.patient) { return next(); }
