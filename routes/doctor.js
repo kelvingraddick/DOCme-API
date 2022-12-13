@@ -4,6 +4,7 @@ var stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 var authenticate = require('../middleware/authenticate');
 var authorize = require('../middleware/authorize');
 var jwt = require('jsonwebtoken');
+var bcrypt = require('bcrypt');
 var Database = require('../helpers/database');
 var Sequelize = require('sequelize');
 var Crypto = require('crypto')
@@ -30,7 +31,7 @@ router.post('/register', async function(req, res, next) {
       first_name: req.body.firstName,
       last_name: req.body.lastName,
       email_address: req.body.emailAddress,
-      password: req.body.password,
+      password: await bcrypt.hash(req.body.password, 10),
       gender: req.body.gender,
       race: req.body.race,
       image_url: req.body.imageUrl
@@ -135,14 +136,14 @@ router.post('/:doctorId/update', authorize, async function(req, res, next) {
 
 router.post('/:doctorId/update/password', authorize, async function(req, res, next) {
   var doctorId = req.params.doctorId;
-  var isCurrentPasswordCorrect = await Database.Doctor.findOne({ where: { id: doctorId, password: req.body.currentPassword } }); // TODO: update to encryption
-  if (!isCurrentPasswordCorrect) {
+  var doctor = await Database.Doctor.findOne({ where: { id: doctorId } });
+  if (!doctor || !await bcrypt.compare(req.body.currentPassword, doctor.password)) {
     res.json({ isSuccess: false, errorCode: ErrorType.INVALID_CREDENTIALS, errorMessage: 'This current password is not correct.' });
   } else if (doctorId != req.doctor.id) {
     res.sendStatus(403);
   } else {
     var updatedDoctor = {
-      password: req.body.newPassword,
+      password: await bcrypt.hash(req.body.newPassword, 10),
     };
     Database.Doctor.update(updatedDoctor, { where: { id: doctorId } })
       .then(async numberUpdated => {
@@ -236,7 +237,7 @@ router.post('/update/password/:code', async function(req, res, next) {
     res.status(403).send('Password reset request timed-out.');
   } else {
     var updatedDoctor = {
-      password: req.body.newPassword,
+      password: await bcrypt.hash(req.body.newPassword, 10),
       reset_password_code: null,
       reset_password_timestamp: null
     };
