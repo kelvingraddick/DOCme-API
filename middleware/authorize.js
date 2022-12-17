@@ -35,6 +35,10 @@ async function authorize(req, res, next) {
               { 
                 model: Database.Schedule,
                 attributes: DatabaseAttributes.SCHEDULE
+              },
+              { 
+                model: Database.Specialty,
+                attributes: DatabaseAttributes.SPECIALTY
               }
             ]
           })
