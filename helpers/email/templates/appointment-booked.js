@@ -150,7 +150,7 @@ const AppointmentBookedTemplate = `
 <div style="font-family: inherit; text-align: inherit"><strong>Doctor's name</strong>: {{ doctor_name }}</div>
 <div style="font-family: inherit; text-align: inherit"><strong>Location</strong>: {{ doctor_location }}</div>
 <div style="font-family: inherit; text-align: inherit"><strong>Date and time</strong>: {{ date_and_time }}</div>
-<div style="font-family: inherit; text-align: inherit"><strong>Reason / Speciality</strong>: {{ reason }}</div>
+<div style="font-family: inherit; text-align: inherit"><strong>Reason / Specialty</strong>: {{ reason }}</div>
 <div style="font-family: inherit; text-align: inherit"><br></div>
 <div style="font-family: inherit; text-align: inherit">Please use the DOCme app to change or cancel your appointment if needed.</div><div></div></div></td>
       </tr>
